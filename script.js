@@ -81,7 +81,7 @@ form.addEventListener("submit", async (event) => {
     if (!response.ok || result.success !== true) {
       throw new Error(result.error || `Trimiterea a eșuat (HTTP ${response.status}).`);
     }
-    status.textContent = `Solicitarea a fost înregistrată cu succes! Număr cerere: ${result.request_id}. Poze încărcate: ${result.photos_uploaded ?? 0}.`;
+    status.textContent = `Solicitarea a fost înregistrată cu succes! Număr cerere: ${result.order_code || "Se generează"}. Poze încărcate: ${result.photos_uploaded ?? 0}`;
     form.reset();
     document.getElementById("carPhotoList").textContent = "Nicio poză selectată încă.";
     document.getElementById("inspirationPhotoList").textContent = "Nicio poză selectată încă.";
