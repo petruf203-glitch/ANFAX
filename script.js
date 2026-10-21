@@ -235,16 +235,44 @@ requestModal.querySelectorAll("[data-close-modal]").forEach(el => el.addEventLis
 document.addEventListener("keydown", event => { if (event.key === "Escape" && requestModal.classList.contains("open")) closeProductModal(); });
 document.getElementById("productRequestForm").addEventListener("submit", event => {
   event.preventDefault();
+
   const form = event.currentTarget;
   if (!form.reportValidity()) return;
+
   const data = new FormData(form);
-  const message = `ANFAX — Cerere produs\nProdus: ${selectedProduct}\nMașină: ${fitmentState.make} ${fitmentState.model}\nAni: ${fitmentState.years}\nContact preferat: ${data.get("contactType")}\nContact: ${data.get("contact")}\nDetalii mașină: ${data.get("carDetails")}\nDetalii suplimentare: ${data.get("notes") || "—"}`;
+  const contactType = data.get("contactType");
+  const contact = String(data.get("contact") || "").trim();
+
+  const message = `ANFAX — Cerere produs
+Produs: ${selectedProduct}
+Mașină: ${fitmentState.make} ${fitmentState.model}
+Ani: ${fitmentState.years}
+Contact preferat: ${contactType}
+Contact: ${contact}
+Detalii mașină: ${data.get("carDetails")}
+Detalii suplimentare: ${data.get("notes") || "—"}`;
+
   const status = document.getElementById("productRequestStatus");
-  if (typeof ANFAX_WHATSAPP_NUMBER !== "undefined" && !ANFAX_WHATSAPP_NUMBER.includes("X")) {
-    window.open(`https://wa.me/${ANFAX_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
-    status.textContent = "Mesajul a fost pregătit pentru WhatsApp. Verifică-l și trimite-l din aplicație.";
-  } else {
-    status.textContent = "WhatsApp nu este configurat corect. Contactează ANFAX direct până remediem linkul.";
+
+  if (contactType === "WhatsApp") {
+    if (!ANFAX_WHATSAPP_NUMBER || ANFAX_WHATSAPP_NUMBER.includes("X")) {
+      status.textContent = "WhatsApp nu este configurat corect.";
+      return;
+    }
+
+    window.open(
+      https://wa.me/${ANFAX_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)},
+      "_blank",
+      "noopener"
+    );
+
+    status.textContent = "Cererea a fost pregătită în WhatsApp. Trimite mesajul din aplicație.";
+  } else if (contactType === "Email") {
+    const subject = encodeURIComponent(Cerere produs ANFAX — ${selectedProduct});
+    const body = encodeURIComponent(message);
+
+    window.location.href = mailto:${contact}?subject=${subject}&body=${body};
+    status.textContent = "Se deschide aplicația de email pentru trimiterea cererii.";
   }
 });
 renderMakes();
